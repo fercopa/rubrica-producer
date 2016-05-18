@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="SSN">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="Cabecera" minOccurs="1" maxOccurs="1">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="Productor" minOccurs="1" maxOccurs="1">
+<xs:complexType>
+<xs:attribute name="TipoPersona" type="TipoPersona" use="required" />
+<xs:attribute name="Matricula" type="Matricula" use="required" />
+</xs:complexType>
+</xs:element>
+<xs:element     name="CantidadRegistros"     type="CantidadRegistros"     minOccurs="1" maxOccurs="1"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="Detalle" minOccurs="1" maxOccurs="1">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="Registro" minOccurs ="1" maxOccurs="3000">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="FechaRegistro" minOccurs="1" maxOccurs="1" type="FechaRegistro"/>
+<xs:element name="Asegurados" minOccurs ="1" maxOccurs="1" >
+<xs:complexType>
+<xs:sequence>
+<xs:element name="Asegurado" minOccurs="1" maxOccurs="200">
+<xs:complexType>
+<xs:attribute name="TipoAsegurado" type="TipoAsegurado" use="required"/>
+<xs:attribute name="TipoDoc" type="TipoDoc" use="required"/>
+<xs:attribute name="NroDoc" type="NroDoc" use="required"/>
+<xs:attribute name="Nombre" type="Nombre" use="required"/>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="CPAProponente" minOccurs="1" maxOccurs="1" type="CPAProponente"/>
+<xs:element name="ObsProponente" minOccurs="1" maxOccurs="1" type="ObsProponente"/>
+<xs:element name="CPACantidad" minOccurs="1" maxOccurs="1" type="CPACantidad" />
+<xs:element name="CodigosPostales" minOccurs ="1" maxOccurs="1">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="CPA" minOccurs="1" maxOccurs="200" type="CPA"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="CiaID" minOccurs="1" maxOccurs="1" type="CiaID"/>
+<xs:element name="Organizador" minOccurs="0" maxOccurs="1">
+<xs:complexType>
+<xs:attribute name="TipoPersona" type="TipoPersona" use="required" />
+<xs:attribute name="Matricula" type="Matricula" use="required" />
+</xs:complexType>
+</xs:element>
+<xs:element name="BienAsegurado" minOccurs="1" maxOccurs="1" type="BienAsegurado"/>
+<xs:element name="Ramo" minOccurs="1" maxOccurs="1" type="Ramo"/>
+<xs:element name="SumaAsegurada" minOccurs="1" maxOccurs="1" type="SumaAsegurada"/>
+<xs:element name="SumaAseguradaTipo" minOccurs="1" maxOccurs="1" type="SumaAseguradaTipo"/>
+<xs:element name="CoberturaFechaDesde" minOccurs="0" maxOccurs="1" type="CoberturaFechaDesde"/>
+<xs:element name="CoberturaFechaHasta" minOccurs="0" maxOccurs="1" type="CoberturaFechaHasta"/>
+<xs:element name="TipoOperacion" minOccurs="1" maxOccurs="1" type="TipoOperacion"/>
+<xs:element name="Poliza" minOccurs="0" maxOccurs="1" type="Poliza"/>
+<xs:element name="Flota" minOccurs="1" maxOccurs="1" type="Flota"/>
+<xs:element name="TipoContacto" minOccurs="1" maxOccurs="1" type="TipoContacto"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:simpleType name="TipoPersona">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[1-2]$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Matricula">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[0-9]{1,10}$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CantidadRegistros">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-2][0-9][0-9][0-9])?$|^3000$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="FechaRegistro">
+<xs:restriction base="xs:date">
+<xs:minInclusive value="2012-11-28"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="TipoAsegurado">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[1-2]$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="TipoDoc">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[1-9]$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="NroDoc">
+<xs:restriction base="xs:string">
+<xs:maxLength value="11"/>
+<xs:minLength value="3"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Nombre">
+<xs:restriction base="xs:string">
+<xs:maxLength value="100"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CPAProponente">
+<xs:restriction base="xs:string">
+<xs:pattern value="^([a-zA-Z]\d{4}[a-zA-Z]{3}|[0-9][0-9][0-9][0-9])$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="ObsProponente">
+<xs:restriction base="xs:string">
+<xs:maxLength value="1000"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CPACantidad">
+<xs:restriction base="xs:integer">
+<xs:pattern  value="^([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9])$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CPA">
+<xs:restriction base="xs:string">
+<xs:pattern value="^([a-zA-Z]\d{4}[a-zA-Z]{3}|[0-9][0-9][0-9][0-9])$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CiaID">
+<xs:restriction base="xs:string">
+<xs:pattern value="^[0-9]{4}$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="BienAsegurado">
+<xs:restriction base="xs:string">
+<xs:minLength value="1"/>
+<xs:maxLength value="200"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Ramo">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^([1-9]|[1-9][0-9]|[1-9][0-9][0-9])$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="SumaAsegurada">
+<xs:restriction base="xs:string">
+<xs:pattern value="^-{0,1}(?!\,?$)\d{0,12}(\,\d{0,2})?$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="SumaAseguradaTipo">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[0-9]{1,2}$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CoberturaFechaDesde">
+<xs:restriction base="xs:date">
+<xs:minInclusive value="1980-01-01"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="CoberturaFechaHasta">
+<xs:restriction base="xs:date">
+<xs:minInclusive value="1980-01-01"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="TipoOperacion">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[1-4]$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Poliza">
+<xs:restriction base="xs:string">
+<xs:maxLength value="50"/>
+<xs:minLength value="1"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Flota">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[0-1]$"/>
+</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="TipoContacto">
+<xs:restriction base="xs:integer">
+<xs:pattern value="^[1-9]$"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:schema>

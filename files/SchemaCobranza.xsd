@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="SSN">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Cabecera" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Productor" minOccurs="1" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="TipoPersona" type="TipoPersona" use="required" />
+                                    <xs:attribute name="Matricula" type="Matricula" use="required" />
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="CantidadRegistros" type="CantidadRegistros" minOccurs="1" maxOccurs="1" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Detalle" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Registro" minOccurs ="1" maxOccurs="3000">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="TipoRegistro" minOccurs ="1" maxOccurs="1" type="TipoRegistro"/>
+                                        <xs:element name="FechaRegistro" minOccurs="1" maxOccurs="1" type="FechaRegistro"/>
+                                        <xs:element name="Concepto" minOccurs ="1" maxOccurs="1" type="Concepto"/>
+                                        <xs:element name="Polizas" minOccurs ="1" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="Poliza" minOccurs="1" maxOccurs="500" type="Poliza"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="CiaID" minOccurs="1" maxOccurs="1" type="CiaID"/>
+                                        <xs:element name="Organizador" minOccurs="0" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="TipoPersona" type="TipoPersona" use="required" />
+                                                <xs:attribute name="Matricula" type="Matricula" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="Importe" minOccurs="1" maxOccurs="1" type="Importe" />
+                                        <xs:element name="ImporteTipo" minOccurs="1" maxOccurs="1" type="ImporteTipo" />
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="TipoPersona">
+        <xs:restriction base="xs:integer">
+            <xs:pattern value="^[1-2]$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Matricula">
+        <xs:restriction base="xs:integer">
+            <xs:pattern value="^[0-9]{1,10}$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="CantidadRegistros">
+        <xs:restriction base="xs:integer">
+            <xs:pattern value="^([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-2][0-9][0-9][0-9])?$|^3000$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TipoRegistro">
+        <xs:restriction base="xs:integer">
+            <xs:pattern value="^[1-3]$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="FechaRegistro">
+        <xs:restriction base="xs:date">
+            <xs:minInclusive value="2012-11-28"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Concepto">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="200" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Poliza">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="20" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="CiaID">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="^[0-9]{4}$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Importe">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="^(?!\,?$)\d{0,12}(\,\d{0,2})?$"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ImporteTipo">
+        <xs:restriction base="xs:integer">
+            <xs:pattern value="^[0-9]{1,2}$"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
