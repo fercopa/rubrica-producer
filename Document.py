@@ -4,8 +4,144 @@ from xml.dom import minidom
 from minixsv import pyxsval
 
 
+class NewDocumentCobranza:
+    """
+    Class with methods for creating xml file Cobranzas
+    """
+    def __init__(self):
+        self.doc = minidom.Document()
+        # Tag <SSN>
+        self.root = self.doc.createElement('SSN')
+        self.doc.appendChild(self.root)
+        # Tag <Cabecera>
+        self.header = self.doc.createElement('Cabecera')
+        self.root.appendChild(self.header)
+        # Tag <Detalle>
+        self.detail = self.doc.createElement('Detalle')
+        self.root.appendChild(self.detail)
+
+    def format_date(self, fecha):
+        """Formats the date
+        Input:
+            Date as a string.
+        Return:
+            A date as string with this format: yyyy-mm-dd
+        """
+        s = fecha.replace('/', '-')
+        res = ''
+        if s.count('-') == 2 and s.replace('-', '').isdigit():
+            str1, str2, str3 = s.split('-')
+            if len(str1) == 4:  # yyyy-mm-dd
+                res = s
+            elif len(str3) == 4:  # dd-mm-yyyy
+                res = '-'.join((str3, str2, str1))
+        return res
+
+    def create_header(self, data):
+        """
+        Building a structure like:
+            <Cabecera>
+                <Productor TipoPersona='' Matricula=''/>
+                <CantidadRegistros></CantidadRegistros>
+            </Cabecera>
+        Create a header from a data dictionary
+        The key=value of data dictionary are:
+            tipoPersona = <string>
+            matricula = <string>
+            cantidadRegistros = <string>
+        """
+        productor = self.doc.createElement("Productor")
+        if data['tipoPersona']:
+            productor.setAttribute("TipoPersona", str(data['tipoPersona']))
+        if data['matricula']:
+            productor.setAttribute("Matricula", str(data['matricula']))
+        self.header.appendChild(productor)
+        cantReg = self.doc.createElement("CantidadRegistros")
+        value_cant = str(data['cantidadRegistros'])
+        cantReg.appendChild(self.doc.createTextNode(value_cant))
+        self.header.appendChild(cantReg)
+
+    def create_register(self, data):
+        """
+        Build an XML structure as:
+        <Registro>
+            <TipoRegistro></TipoRegistro>
+            <FechaRegistro></FechaRegistro>
+            <Concepto></Concepto>
+            <Polizas>
+                <Pliza></Poliza>
+            </Polizas>
+            <CiaID></CiaID>
+            <Organizador TipoPersona='' Matricula=''/>
+            <Importe></Importe>
+            <ImporteTipo></ImporteTipo>
+        </Registro>
+
+        The key=value of data dictionary are:
+            tipoRegistro = <string>
+            fechaRegistros = <string>
+            concepto = <string>
+            polizas = [<string1>, <string2>, ...]
+            ciaId = <string>
+            organizador = (<string>, <string>)
+            importe = <string>
+            importeTipo = <string>
+        """
+        reg = self.doc.createElement("Registro")
+
+        regTipo = self.doc.createElement('TipoRegistro')
+        regTipo.appendChild(self.doc.createTextNode(data['tipoRegistro']))
+        reg.appendChild(regTipo)
+
+        fechaReg = self.doc.createElement("FechaRegistro")
+        value_fr = self.format_date(data['fechaRegistro'])
+        fechaReg.appendChild(self.doc.createTextNode(value_fr))
+        reg.appendChild(fechaReg)
+
+        concepto = self.doc.createElement("Concepto")
+        value_c = unicode(data['concepto'])
+        concepto.appendChild(self.doc.createTextNode(value_c))
+        reg.appendChild(concepto)
+
+        polizas = self.doc.createElement('Polizas')
+        for p in data['polizas']:
+            poliza = self.doc.createElement('Poliza')
+            poliza.appendChild(self.doc.createTextNode(p))
+            polizas.appendChild(poliza)
+        reg.appendChild(polizas)
+
+        ciaId = self.doc.createElement("CiaID")
+        ciaId.appendChild(self.doc.createTextNode(str(data['ciaId'])))
+        reg.appendChild(ciaId)
+
+        if data['organizador']:
+            organizador = self.doc.createElement('Organizador')
+            m, tp = data['organizador']
+            organizador.setAttribute('TipoPersona', tp)
+            organizador.setAttribute('Matricula', m)
+            reg.appendChild(organizador)
+
+        importe = self.doc.createElement("Importe")
+        value = unicode(data['importe'])
+        importe.appendChild(self.doc.createTextNode(value))
+        reg.appendChild(importe)
+
+        importeTipo = self.doc.createElement("ImporteTipo")
+        value = str(data['importeTipo'])
+        importeTipo.appendChild(self.doc.createTextNode(value))
+        reg.appendChild(importeTipo)
+
+        self.detail.appendChild(reg)
+
+    def save(self, filename):
+        "Save the xml with filename"
+        xml_str = self.doc.toprettyxml(indent="  ", encoding="utf-8")
+        with open(filename, 'w') as f:
+            f.write(xml_str)
+
+
 class DocumentCobranza:
-    "Class with methods for creating xml file cobranza."
+    "Class with methods for to work with xml file cobranza."
     def __init__(self, filenameXML, filenameXSD):
         self.doc = pyxsval.parseAndValidate(filenameXML, filenameXSD)
         self.document = self.doc.getTree().document
@@ -190,6 +326,7 @@ class NewDocumentOperacion:
             cpaCantidad = <string>
             codigosPostales = [<string1>, <string2>, ...]
             ciaId = <string>
+            organizador = (<string>, <string>)
             bienAsegurado = <string>
             ramo = <string>
             sumaAsegurada = <string>
@@ -309,6 +446,7 @@ class NewDocumentOperacion:
 
 
 class DocumentOperacion:
+    "Class with methods for to work with xml file Operacion."
     def __init__(self, filenameXML, filenameXSD):
         self.fileout = filenameXML
         self.doc = pyxsval.parseAndValidate(filenameXML, filenameXSD)
