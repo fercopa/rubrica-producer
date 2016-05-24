@@ -290,12 +290,19 @@ class AddReg(Ui_DialogAdd):
         return res
 
 
-class MyForm(QtGui.QMainWindow):
+"""class MyForm(QtGui.QMainWindow):
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self)"""
+
+
+class MyForm(Ui_MainWindow):
+
+    def __init__(self):
+        self.ui = QtGui.QMainWindow()
+        Ui_MainWindow.setupUi(self, self.ui)
 
         # Name of the columns
         fechaRegistro = 'Fecha Registro'
@@ -318,11 +325,11 @@ class MyForm(QtGui.QMainWindow):
               vigencia, tipo_op, flota, tipo_contacto]
 
         # Setup the header of columns
-        self.ui.tabla.setColumnCount(len(li))
-        self.ui.tabla.setHorizontalHeaderLabels(li)
-        self.ui.tabla.resizeColumnsToContents()
-        self.ui.tabla.resizeRowsToContents()
-        self.ui.tabla.setSortingEnabled(True)
+        self.tabla.setColumnCount(len(li))
+        self.tabla.setHorizontalHeaderLabels(li)
+        self.tabla.resizeColumnsToContents()
+        self.tabla.resizeRowsToContents()
+        self.tabla.setSortingEnabled(True)
 
         self.doc = ''  # Current document loaded
         # This dictionary contains (date: register) for future modification
@@ -333,29 +340,29 @@ class MyForm(QtGui.QMainWindow):
 
         # Functions for the buttons
         # Update Register
-        QtCore.QObject.connect(self.ui.btnUpdateReg,
+        QtCore.QObject.connect(self.btnUpdateReg,
                                QtCore.SIGNAL('clicked()'),
                                self.dialog_modificar_date)
         # Delete Register
-        QtCore.QObject.connect(self.ui.btnDelete,
+        QtCore.QObject.connect(self.btnDelete,
                                QtCore.SIGNAL('clicked()'),
                                self.delete_reg)
 
-        self.ui.actionAbrir_archivo.triggered.connect(self.loadFile)
-        self.ui.actionGuardar_como.triggered.connect(self.saveFile)
-        self.ui.actionAgregar_archivo_xml.triggered.connect(self.add_file)
-        self.ui.actionAgregar_registro.triggered.connect(self.dialog_add_reg)
-        self.ui.actionTodos_los_registros.triggered.connect(
+        self.actionAbrir_archivo.triggered.connect(self.loadFile)
+        self.actionGuardar_como.triggered.connect(self.saveFile)
+        self.actionAgregar_archivo_xml.triggered.connect(self.add_file)
+        self.actionAgregar_registro.triggered.connect(self.dialog_add_reg)
+        self.actionTodos_los_registros.triggered.connect(
             self.show_all_registers)
         # Filter for Responsabilidad Civil
-        mapper = QtCore.QSignalMapper(self)
-        mapper.setMapping(self.ui.actionResponsabilidad_civil, RAMO_ID)
-        self.ui.actionResponsabilidad_civil.triggered.connect(mapper.map)
+        mapper = QtCore.QSignalMapper(self.ui)
+        mapper.setMapping(self.actionResponsabilidad_civil, RAMO_ID)
+        self.actionResponsabilidad_civil.triggered.connect(mapper.map)
         mapper.mapped['QString'].connect(self.register_filter)
 
     def saveFile(self):
         """Save a xml file as <filename>.xml"""
-        if self.ui.tabla.rowCount() > 0:
+        if self.tabla.rowCount() > 0:
             doc = NewDocumentOperacion()
             data_header = self.doc.get_header()
             for elem in self.delete_list:
@@ -369,7 +376,7 @@ class MyForm(QtGui.QMainWindow):
             for e in regs:
                 doc.create_register(e[1])
             # Save the doc
-            name = QFileDialog.getSaveFileName(self, 'Guardar como...',
+            name = QFileDialog.getSaveFileName(self.ui, 'Guardar como...',
                                                filter='*.xml')
             if str(name).endswith('.xml'):
                 doc.save(str(name))
@@ -446,9 +453,9 @@ class MyForm(QtGui.QMainWindow):
 
     def dialog_modificar_date(self):
         """Modify the date (Fecha Registro) of current row"""
-        if self.ui.tabla.rowCount() > 0:
-            row = self.ui.tabla.currentRow()
-            item = self.ui.tabla.item(row, T_FECHREG)
+        if self.tabla.rowCount() > 0:
+            row = self.tabla.currentRow()
+            item = self.tabla.item(row, T_FECHREG)
 
             dial = QtGui.QDialog()
             ui = Ui_DialogModificar()
@@ -457,7 +464,7 @@ class MyForm(QtGui.QMainWindow):
 
             if dial.result():  # If press OK
                 # Get the id of register
-                item_id = self.ui.tabla.item(row, 0)
+                item_id = self.tabla.item(row, 0)
                 item_id = item_id.text().toUtf8().data()
 
                 # Get the new date. Should be dd/mm/yyyy or dd-mm-yyyy
@@ -480,7 +487,8 @@ class MyForm(QtGui.QMainWindow):
     def add_file(self):
         """Add more register from a file to the table"""
         if self.registers:
-            obj_file = QtGui.QFileDialog.getOpenFileName(self, 'Abrir archivo',
+            obj_file = QtGui.QFileDialog.getOpenFileName(self.ui,
+                                                         'Abrir archivo',
                                                          filter='*.xml')
             filename = unicode(obj_file)
             if filename:
@@ -503,8 +511,8 @@ class MyForm(QtGui.QMainWindow):
 
     def clear_table(self):
         """Clean the table"""
-        for i in range(0, self.ui.tabla.rowCount()):
-            self.ui.tabla.removeRow(0)
+        for i in range(0, self.tabla.rowCount()):
+            self.tabla.removeRow(0)
 
     def loadFile(self):
         """Open a dialog file for choise a xml file"""
@@ -512,7 +520,7 @@ class MyForm(QtGui.QMainWindow):
         self.registers = {}
         self.delete_list = []
         # Get the name of xml file
-        namef = QtGui.QFileDialog.getOpenFileName(self,
+        namef = QtGui.QFileDialog.getOpenFileName(self.ui,
                                                   'Abrir archivo',
                                                   filter='*.xml')
         # Get the absolute path of xml file as a string
@@ -520,9 +528,9 @@ class MyForm(QtGui.QMainWindow):
         if filename:
             self.doc = DocumentOperacion(filename, 'files/SchemaOperacion.xsd')
             header_data = self.doc.get_header()
-            self.ui.label_TipoPersona.setText(header_data['tipoPersona'])
-            self.ui.label_Matricula.setText(header_data['matricula'])
-            self.ui.label_CantReg.setText(header_data['cantidadRegistros'])
+            self.label_TipoPersona.setText(header_data['tipoPersona'])
+            self.label_Matricula.setText(header_data['matricula'])
+            self.label_CantReg.setText(header_data['cantidadRegistros'])
 
             row = 0
             while(not self.doc.is_empty_regs()):
@@ -566,12 +574,12 @@ class MyForm(QtGui.QMainWindow):
 
     def show_register(self, key, reg):
         """Show the register in a row fo table"""
-        row = self.ui.tabla.rowCount()
+        row = self.tabla.rowCount()
         # data = self.doc.get_data_register(reg)
-        self.ui.tabla.insertRow(row)
-        self.ui.tabla.setItem(row, T_ID, QtGui.QTableWidgetItem(key))
+        self.tabla.insertRow(row)
+        self.tabla.setItem(row, T_ID, QtGui.QTableWidgetItem(key))
         fechaReg = self.format_date(reg['fechaRegistro'])
-        self.ui.tabla.setItem(row, T_FECHREG, QtGui.QTableWidgetItem(fechaReg))
+        self.tabla.setItem(row, T_FECHREG, QtGui.QTableWidgetItem(fechaReg))
 
         # Asegurados
         # n = Nombre, td = TipoDoc, nd = NroDoc, ta = TipoAsegurado
@@ -583,36 +591,35 @@ class MyForm(QtGui.QMainWindow):
             td = tipoDoc[td]['Descripcion']
             list_aseg.append('-'.join((n, td, nd, ta)))
         asegurados = '\n'.join(list_aseg)
-        self.ui.tabla.setItem(row, 2, QtGui.QTableWidgetItem(asegurados))
+        self.tabla.setItem(row, 2, QtGui.QTableWidgetItem(asegurados))
 
         cpa_p = reg['cpaProponente']
-        self.ui.tabla.setItem(row, 3, QtGui.QTableWidgetItem(cpa_p))
+        self.tabla.setItem(row, 3, QtGui.QTableWidgetItem(cpa_p))
 
         cpa_obs = reg['obsProponente']
-        self.ui.tabla.setItem(row, 4, QtGui.QTableWidgetItem(cpa_obs))
+        self.tabla.setItem(row, 4, QtGui.QTableWidgetItem(cpa_obs))
 
         cpa_cant = reg['cpaCantidad']
-        self.ui.tabla.setItem(row, 5, QtGui.QTableWidgetItem(cpa_cant))
+        self.tabla.setItem(row, 5, QtGui.QTableWidgetItem(cpa_cant))
 
         cpas = '\n'.join(reg['codigosPostales'])
-        self.ui.tabla.setItem(row, 6, QtGui.QTableWidgetItem(cpas))
+        self.tabla.setItem(row, 6, QtGui.QTableWidgetItem(cpas))
 
         # Compania
         tablaCompania = self.get_dataFromFile('files/TablaCompania.json')
         compania = reg['ciaId']
         compania = tablaCompania[compania]['DenominacionCorta']
-        self.ui.tabla.setItem(row, 7, QtGui.QTableWidgetItem(compania))
+        self.tabla.setItem(row, 7, QtGui.QTableWidgetItem(compania))
 
         # Organizador
         if reg['organizador']:
             matricula, tp_org = reg['organizador']
             tp_org = tipoAsegurado[tp_org]['Descripcion']
             organizador = '-'.join((matricula, tp_org))
-            self.ui.tabla.setItem(row, 8,
-                                  QtGui.QTableWidgetItem(organizador))
+            self.tabla.setItem(row, 8, QtGui.QTableWidgetItem(organizador))
 
         bien = reg['bienAsegurado']
-        self.ui.tabla.setItem(row, 9, QtGui.QTableWidgetItem(bien))
+        self.tabla.setItem(row, 9, QtGui.QTableWidgetItem(bien))
 
         # Ramo
         tablaRamo = self.get_dataFromFile('files/ramos.json')
@@ -621,39 +628,39 @@ class MyForm(QtGui.QMainWindow):
             ramo = tablaRamo[r]['Descripcion']
         else:
             ramo = r
-        self.ui.tabla.setItem(row, 10, QtGui.QTableWidgetItem(ramo))
+        self.tabla.setItem(row, 10, QtGui.QTableWidgetItem(ramo))
 
         # Suma asegurada y su tipo
         monedas = self.get_dataFromFile('files/tiposMonedas.json')
         id_tipo = reg['sumaAseguradaTipo']
         moneda = monedas[id_tipo]['Signo']
         suma_aseg = moneda + ' ' + reg['sumaAsegurada']
-        self.ui.tabla.setItem(row, 11, QtGui.QTableWidgetItem(suma_aseg))
+        self.tabla.setItem(row, 11, QtGui.QTableWidgetItem(suma_aseg))
 
         vigencia = '\n'.join((self.format_date(reg['coberturaFechaDesde']),
                               self.format_date(reg['coberturaFechaHasta'])))
-        self.ui.tabla.setItem(row, 12, QtGui.QTableWidgetItem(vigencia))
+        self.tabla.setItem(row, 12, QtGui.QTableWidgetItem(vigencia))
 
         # Tipo operacion y poliza
         tipoOperacion = self.get_dataFromFile('files/tipoOperacion.json')
         poliza = reg['poliza']
         id_top = reg['tipoOperacion']
         tipo_op = tipoOperacion[id_top]['Descripcion'] + '\n' + poliza
-        self.ui.tabla.setItem(row, 13, QtGui.QTableWidgetItem(tipo_op))
+        self.tabla.setItem(row, 13, QtGui.QTableWidgetItem(tipo_op))
 
         num_flota = reg['flota']
         flota = 'No'
         if num_flota == '1':
             flota = 'Si'
-        self.ui.tabla.setItem(row, 14, QtGui.QTableWidgetItem(flota))
+        self.tabla.setItem(row, 14, QtGui.QTableWidgetItem(flota))
 
         # Tipo Contacto
         tipoContacto = self.get_dataFromFile('files/tipoContacto.json')
         id_tc = reg['tipoContacto']
         tipo_cont = tipoContacto[id_tc]['Descripcion']
-        self.ui.tabla.setItem(row, 15, QtGui.QTableWidgetItem(tipo_cont))
+        self.tabla.setItem(row, 15, QtGui.QTableWidgetItem(tipo_cont))
 
-        self.ui.tabla.resizeRowToContents(row)
+        self.tabla.resizeRowToContents(row)
 
     def show_all_registers(self):
         """Show the registers in a table"""
@@ -690,25 +697,25 @@ class MyForm(QtGui.QMainWindow):
 
     def delete_reg(self):
         "Delete a register of current row selected"
-        row = self.ui.tabla.currentRow()
+        row = self.tabla.currentRow()
         if row >= 0:
             msg = 'Esta seguro que quiere borrar el registro?'
             dial = QMessageBox.question(self, 'Advertencia', msg,
                                         QMessageBox.Ok | QMessageBox.Cancel)
             if dial == QMessageBox.Ok:
-                item = self.ui.tabla.item(row, T_ID)
+                item = self.tabla.item(row, T_ID)
                 if item is not None:
                     self.delete_list.append(unicode(item.text()))
-                    self.ui.tabla.removeRow(row)
+                    self.tabla.removeRow(row)
                     self.refresh_header()
 
     def refresh_header(self):
         "Update the len of registers"
         cantReg = str(len(self.registers) - len(self.delete_list))
-        self.ui.label_CantReg.setText(cantReg)
+        self.label_CantReg.setText(cantReg)
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()
-    myapp.show()
+    myapp.ui.show()
     sys.exit(app.exec_())
