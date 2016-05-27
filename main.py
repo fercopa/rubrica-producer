@@ -2,6 +2,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 from FPSeguros import Ui_MainProducer
 import Ui_iseguro
+import Ui_Cobranzas
 
 
 class MainPage(QtGui.QMainWindow):
@@ -24,7 +25,8 @@ class MainPage(QtGui.QMainWindow):
         self.form.ui.show()
 
     def cobranzas(self):
-        pass
+        self.form = Ui_Cobranzas.MyForm()
+        self.form.ui.show()
 
 
 if __name__ == '__main__':

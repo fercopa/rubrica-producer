@@ -1,8 +1,9 @@
 import sys
 import datetime
 import json
-from Ui_mainTable import QtGui, QtCore, Ui_MainWindow
+from docx import Document as Docx
 from PyQt4.QtGui import QFileDialog, QMessageBox
+from Ui_mainTable import QtGui, QtCore, Ui_MainWindow
 from Ui_updateDate import Ui_DialogModificar
 from Ui_addRegister import Ui_DialogAdd
 from Document import DocumentOperacion
@@ -27,6 +28,17 @@ T_FLOTA = 14
 T_TCONT = 15
 
 RAMO_ID = '36'
+
+# For docx document
+T_FREG = 1          # Fecha registro
+T_NYA = 2           # Nombre y apellido
+T_DIR = 3           # Direccion
+T_UBIC = 4          # Ubicacion del riesgo
+T_CIA = 5           # Compania (Entidad Aseguradora)
+T_BIEN = 6          # Bien asegurado
+T_RIESGO = 7        # Riesgo a cubrir
+T_SUMASEG = 8       # Suma asegurada
+T_VIGENCIA = 9      # Vigencia seguro
 
 
 class AddReg(Ui_DialogAdd):
@@ -290,14 +302,6 @@ class AddReg(Ui_DialogAdd):
         return res
 
 
-"""class MyForm(QtGui.QMainWindow):
-
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)"""
-
-
 class MyForm(Ui_MainWindow):
 
     def __init__(self):
@@ -346,7 +350,7 @@ class MyForm(Ui_MainWindow):
         # Delete Register
         QtCore.QObject.connect(self.btnDelete,
                                QtCore.SIGNAL('clicked()'),
-                               self.delete_reg)
+                               self.save_as_docx)
 
         self.actionAbrir_archivo.triggered.connect(self.loadFile)
         self.actionGuardar_como.triggered.connect(self.saveFile)
@@ -359,6 +363,62 @@ class MyForm(Ui_MainWindow):
         mapper.setMapping(self.actionResponsabilidad_civil, RAMO_ID)
         self.actionResponsabilidad_civil.triggered.connect(mapper.map)
         mapper.mapped['QString'].connect(self.register_filter)
+
+    def save_as_docx(self):
+        "Save a document for Microsoft Windows >= 2007"
+        if self.tabla.rowCount() > 0:
+            doc = Docx('files/operaciones.docx')
+            table = doc.tables[0]
+            for elem in self.delete_list:
+                del(self.registers[elem])
+            regs = self.registers.values()
+            # Order for date
+            regs.sort(key=lambda t: t[0])
+            i = 1
+            ca = self.get_dataFromFile('files/TablaCompania.json')
+            ramo = self.get_dataFromFile('files/ramos.json')
+            monedas = self.get_dataFromFile('files/tiposMonedas.json')
+            rows = table.row_cells(0)
+            for e in regs:
+                fechaRegistro = e[1]['fechaRegistro']
+                nombres = []
+                direcciones = []
+                ubicaciones = []
+                for elem in e[1]['asegurados']:
+                    n = elem[0]
+                    nombre = n[:n.find('-')]
+                    direccion = n[n.find('-')+1:n.rfind('-')]
+                    ubicacion = n[n.rfind('-')+1:]
+                    nombres.append(unicode(nombre.strip()))
+                    direcciones.append(unicode(direccion.strip()))
+                    ubicaciones.append(unicode(ubicacion.strip()))
+                ciaId = e[1]['ciaId']
+                aseguradora = ca[ciaId]['Denominacion']
+                bienAsegurado = e[1]['bienAsegurado']
+                riesgo = ramo[e[1]['ramo']]['Descripcion']
+                moneda = monedas[e[1]['sumaAseguradaTipo']]['Signo']
+                sumaAseg = moneda + ' ' + e[1]['sumaAsegurada']
+                vigencia = e[1]['coberturaFechaDesde'] + '\n' + \
+                    e[1]['coberturaFechaHasta']
+                # Fill table
+                rows[0].text = str(i)
+                rows[T_FREG].text = fechaRegistro
+                rows[T_NYA].text = '\n'.join(nombres)
+                rows[T_DIR].text = '\n'.join(direcciones)
+                rows[T_UBIC].text = '\n'.join(ubicaciones)
+                rows[T_CIA].text = unicode(aseguradora)
+                rows[T_BIEN].text = unicode(bienAsegurado)
+                rows[T_RIESGO].text = unicode(riesgo)
+                rows[T_SUMASEG].text = unicode(sumaAseg)
+                rows[T_VIGENCIA].text = vigencia
+                rows = table.add_row().cells
+                i += 1
+            name = QFileDialog.getSaveFileName(self.ui, 'Guardar como...',
+                                               filter='*.docx')
+            if unicode(name).endswith('.docx'):
+                doc.save(unicode(name))
+            else:
+                doc.save(unicode(name)+'.docx')
 
     def saveFile(self):
         """Save a xml file as <filename>.xml"""
@@ -378,10 +438,10 @@ class MyForm(Ui_MainWindow):
             # Save the doc
             name = QFileDialog.getSaveFileName(self.ui, 'Guardar como...',
                                                filter='*.xml')
-            if str(name).endswith('.xml'):
-                doc.save(str(name))
+            if unicode(name).endswith('.xml'):
+                doc.save(unicode(name))
             else:
-                doc.save(str(name)+'.xml')
+                doc.save(unicode(name)+'.xml')
 
     def dialog_add_reg(self):
         "Open a windows to fill a form"
@@ -448,7 +508,7 @@ class MyForm(Ui_MainWindow):
                     self.show_register(str(row+1), reg)
                     self.refresh_header()
         else:
-            QMessageBox.critical(self, 'Advertencia',
+            QMessageBox.critical(self.ui, 'Advertencia',
                                  'No hay ningun xml cargado')
 
     def dialog_modificar_date(self):
@@ -470,18 +530,18 @@ class MyForm(Ui_MainWindow):
                 # Get the new date. Should be dd/mm/yyyy or dd-mm-yyyy
                 dato = ui.cmpFecha.text().toUtf8().data()
                 d, m, a = '', '', ''
-                if dato:
+                if dato and ('-' in dato or '/' in dato):
                     dato = dato.replace('/', '-')
                     d, m, a = dato.split('-')  # EXCEPTION
-                    # Update the current table
-                    item.setText('-'.join([a, m, d]))
 
                     # Get the register
                     reg = self.registers[item_id][1]
                     newDate = datetime.date(int(a), int(m), int(d))
+                    # Update the current table
+                    item.setText(newDate.isoformat())
                     if self.doc:
                         # self.doc.change_date_register(reg, dato)
-                        reg['fechaRegistro'] = '-'.join([a, m, d])
+                        reg['fechaRegistro'] = newDate.isoformat()
                         self.registers[item_id] = (newDate, reg)
 
     def add_file(self):
@@ -492,20 +552,25 @@ class MyForm(Ui_MainWindow):
                                                          filter='*.xml')
             filename = unicode(obj_file)
             if filename:
-                doc = DocumentOperacion(filename, 'files/SchemaOperacion.xsd')
-                row = len(self.registers)
-                while not doc.is_empty_regs():
-                    reg = doc.get_register()
-                    data = doc.get_data_register(reg)
-                    fechaReg = data['fechaRegistro']
-                    # Store a list of (date, reg)
-                    # fechaReg = 'yyyy-mm-dd'
-                    y, m, d = fechaReg.split('-')
-                    date = datetime.date(int(y), int(m), int(d))
-                    self.registers[str(row+1)] = (date, data)
-                    row += 1
-                self.show_all_registers()
-                self.refresh_header()
+                try:
+                    doc = DocumentOperacion(filename,
+                                            'files/SchemaOperacion.xsd')
+                    row = len(self.registers)
+                    while not doc.is_empty_regs():
+                        reg = doc.get_register()
+                        data = doc.get_data_register(reg)
+                        fechaReg = data['fechaRegistro']
+                        # Store a list of (date, reg)
+                        # fechaReg = 'yyyy-mm-dd'
+                        y, m, d = fechaReg.split('-')
+                        date = datetime.date(int(y), int(m), int(d))
+                        self.registers[str(row+1)] = (date, data)
+                        row += 1
+                    self.show_all_registers()
+                    self.refresh_header()
+                except Exception as e:
+                    msg = 'Archivo no valido.\nDetalles:\n' + e.message
+                    QMessageBox.critical(self.ui, 'Error', msg)
         else:
             self.loadFile()
 
@@ -526,25 +591,32 @@ class MyForm(Ui_MainWindow):
         # Get the absolute path of xml file as a string
         filename = unicode(namef)
         if filename:
-            self.doc = DocumentOperacion(filename, 'files/SchemaOperacion.xsd')
-            header_data = self.doc.get_header()
-            self.label_TipoPersona.setText(header_data['tipoPersona'])
-            self.label_Matricula.setText(header_data['matricula'])
-            self.label_CantReg.setText(header_data['cantidadRegistros'])
+            try:
+                self.doc = DocumentOperacion(filename,
+                                             'files/SchemaOperacion.xsd')
+                header_data = self.doc.get_header()
+                tp = self.get_dataFromFile('files/tipoPersona.json')
+                value = tp[header_data['tipoPersona']]['Descripcion']
+                self.label_TipoPersona.setText(value)
+                self.label_Matricula.setText(header_data['matricula'])
+                self.label_CantReg.setText(header_data['cantidadRegistros'])
 
-            row = 0
-            while(not self.doc.is_empty_regs()):
-                reg = self.doc.get_register()
-                data = self.doc.get_data_register(reg)
-                fechaReg = data['fechaRegistro']
-                # Store a list of (date, reg)
-                # fechaReg = 'yyyy-mm-dd'
-                y, m, d = fechaReg.split('-')
-                date = datetime.date(int(y), int(m), int(d))
-                self.registers[str(row+1)] = (date, data)
-                row += 1
-            self.show_all_registers()
-            self.refresh_header()
+                row = 0
+                while(not self.doc.is_empty_regs()):
+                    reg = self.doc.get_register()
+                    data = self.doc.get_data_register(reg)
+                    fechaReg = data['fechaRegistro']
+                    # Store a list of (date, reg)
+                    # fechaReg = 'yyyy-mm-dd'
+                    y, m, d = fechaReg.split('-')
+                    date = datetime.date(int(y), int(m), int(d))
+                    self.registers[str(row+1)] = (date, data)
+                    row += 1
+                self.show_all_registers()
+                self.refresh_header()
+            except Exception as e:
+                msg = 'Archivo no valido.\nDetalles:\n' + e.message
+                QMessageBox.critical(self.ui, 'Error', msg)
 
     def get_dataFromFile(self, filename):
         """
@@ -700,7 +772,7 @@ class MyForm(Ui_MainWindow):
         row = self.tabla.currentRow()
         if row >= 0:
             msg = 'Esta seguro que quiere borrar el registro?'
-            dial = QMessageBox.question(self, 'Advertencia', msg,
+            dial = QMessageBox.question(self.ui, 'Advertencia', msg,
                                         QMessageBox.Ok | QMessageBox.Cancel)
             if dial == QMessageBox.Ok:
                 item = self.tabla.item(row, T_ID)

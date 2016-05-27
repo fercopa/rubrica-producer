@@ -4,7 +4,7 @@ from xml.dom import minidom
 from minixsv import pyxsval
 
 
-class NewDocumentCobranza:
+class NewDocumentCobranzas:
     """
     Class with methods for creating xml file Cobranzas
     """
@@ -140,7 +140,7 @@ class NewDocumentCobranza:
             f.write(xml_str)
 
 
-class DocumentCobranza:
+class DocumentCobranzas:
     "Class with methods for to work with xml file cobranza."
     def __init__(self, filenameXML, filenameXSD):
         self.doc = pyxsval.parseAndValidate(filenameXML, filenameXSD)

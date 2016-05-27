@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SSN>
+  <Cabecera>
+    <Productor Matricula="10000" TipoPersona="1"/>
+    <CantidadRegistros>2</CantidadRegistros>
+  </Cabecera>
+  <Detalle>
+    <Registro>
+      <FechaRegistro>2015-08-04</FechaRegistro>
+      <Asegurados>
+        <Asegurado Nombre="moniquelanisky" NroDoc="13525523" TipoAsegurado="1" TipoDoc="1"/>
+      </Asegurados>
+      <CPAProponente>1414</CPAProponente>
+      <ObsProponente>5353</ObsProponente>
+      <CPACantidad>2</CPACantidad>
+      <CodigosPostales>
+        <CPA>4141</CPA>
+        <CPA>3227</CPA>
+      </CodigosPostales>
+      <CiaID>9999</CiaID>
+      <Organizador Matricula="11111" TipoPersona="1"/>
+      <BienAsegurado>moto</BienAsegurado>
+      <Ramo>37</Ramo>
+      <SumaAsegurada>4141,00</SumaAsegurada>
+      <SumaAseguradaTipo>1</SumaAseguradaTipo>
+      <CoberturaFechaDesde>2015-08-10</CoberturaFechaDesde>
+      <CoberturaFechaHasta>2015-08-26</CoberturaFechaHasta>
+      <TipoOperacion>2</TipoOperacion>
+      <Poliza>1234</Poliza>
+      <Flota>1</Flota>
+      <TipoContacto>1</TipoContacto>
+    </Registro>
+    <Registro>
+      <FechaRegistro>2015-08-04</FechaRegistro>
+      <Asegurados>
+        <Asegurado Nombre="moniquelanisky" NroDoc="13525523" TipoAsegurado="1" TipoDoc="1"/>
+      </Asegurados>
+      <CPAProponente>1414</CPAProponente>
+      <ObsProponente>5353</ObsProponente>
+      <CPACantidad>2</CPACantidad>
+      <CodigosPostales>
+        <CPA>4141</CPA>
+        <CPA>3227</CPA>
+      </CodigosPostales>
+      <CiaID>9999</CiaID>
+      <Organizador Matricula="11111" TipoPersona="1"/>
+      <BienAsegurado>moto</BienAsegurado>
+      <Ramo>37</Ramo>
+      <SumaAsegurada>4141,00</SumaAsegurada>
+      <SumaAseguradaTipo>1</SumaAseguradaTipo>
+      <CoberturaFechaDesde>2015-08-10</CoberturaFechaDesde>
+      <CoberturaFechaHasta>2015-08-26</CoberturaFechaHasta>
+      <TipoOperacion>2</TipoOperacion>
+      <Poliza>1234</Poliza>
+      <Flota>1</Flota>
+      <TipoContacto>1</TipoContacto>
+    </Registro>
+  </Detalle>
+</SSN>
