@@ -350,10 +350,11 @@ class MyForm(Ui_MainWindow):
         # Delete Register
         QtCore.QObject.connect(self.btnDelete,
                                QtCore.SIGNAL('clicked()'),
-                               self.save_as_docx)
+                               self.delete_reg)
 
         self.actionAbrir_archivo.triggered.connect(self.loadFile)
         self.actionGuardar_como.triggered.connect(self.saveFile)
+        self.actionGuardar_como_docx.triggered.connect(self.save_as_docx)
         self.actionAgregar_archivo_xml.triggered.connect(self.add_file)
         self.actionAgregar_registro.triggered.connect(self.dialog_add_reg)
         self.actionTodos_los_registros.triggered.connect(
@@ -369,9 +370,10 @@ class MyForm(Ui_MainWindow):
         if self.tabla.rowCount() > 0:
             doc = Docx('files/operaciones.docx')
             table = doc.tables[0]
+            registers = self.registers.copy()
             for elem in self.delete_list:
-                del(self.registers[elem])
-            regs = self.registers.values()
+                del(registers[elem])
+            regs = registers.values()
             # Order for date
             regs.sort(key=lambda t: t[0])
             i = 1
@@ -425,12 +427,13 @@ class MyForm(Ui_MainWindow):
         if self.tabla.rowCount() > 0:
             doc = NewDocumentOperacion()
             data_header = self.doc.get_header()
+            registers = self.registers.copy()
             for elem in self.delete_list:
-                del(self.registers[elem])
-            cantReg = str(len(self.registers))
+                del(registers[elem])
+            cantReg = str(len(registers))
             data_header['cantidadRegistros'] = cantReg
             doc.create_header(data_header)
-            regs = self.registers.values()
+            regs = registers.values()
             # Order for date
             regs.sort(key=lambda t: t[0])
             for e in regs:
