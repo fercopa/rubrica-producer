@@ -1,8 +1,8 @@
 import sys
 from PyQt4 import QtCore, QtGui
-from FPSeguros import Ui_MainProducer
-import Ui_iseguro
-import Ui_Cobranzas
+from src.FPSeguros import Ui_MainProducer
+from src import Ui_Operaciones
+from src import Ui_Cobranzas
 
 
 class MainPage(QtGui.QMainWindow):
@@ -21,7 +21,7 @@ class MainPage(QtGui.QMainWindow):
                                self.cobranzas)
 
     def operaciones(self):
-        self.form = Ui_iseguro.MyForm()
+        self.form = Ui_Operaciones.MyForm()
         self.form.ui.show()
 
     def cobranzas(self):
