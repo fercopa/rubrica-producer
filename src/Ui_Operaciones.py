@@ -467,7 +467,10 @@ class MyForm(Ui_MainWindow):
 
             if ui.dial.result():
                 reg = {}
-                reg['fechaRegistro'] = str(ui.cmpFechaRegistro.text())
+                field_value = self.format_date(str(ui.cmpFechaRegistro.text()))
+                y, m, d = field_value.split('-')
+                value = datetime.date(int(y), int(m), int(d))
+                reg['fechaRegistro'] = value.isoformat()
                 # Asegurados
                 currentText = ui.cmpAsegurados.toPlainText()
                 list_aseg = currentText.split('\n')
@@ -501,8 +504,16 @@ class MyForm(Ui_MainWindow):
                 reg['sumaAsegurada'] = unicode(ui.cmpSumaAseg.text())
                 sa = unicode(ui.comboBoxSumaTipo.currentText())
                 reg['sumaAseguradaTipo'] = sa.split('-')[0]
-                reg['coberturaFechaDesde'] = unicode(ui.cmpFechaDes.text())
-                reg['coberturaFechaHasta'] = unicode(ui.cmpFechaHas.text())
+
+                field_value = self.format_date(str(ui.cmpFechaDes.text()))
+                y, m, d = field_value.split('-')
+                value = datetime.date(int(y), int(m), int(d))
+                reg['coberturaFechaDesde'] = value.isoformat()
+
+                field_value = self.format_date(str(ui.cmpFechaHas.text()))
+                y, m, d = field_value.split('-')
+                value = datetime.date(int(y), int(m), int(d))
+                reg['coberturaFechaHasta'] = value.isoformat()
                 tipOp = unicode(ui.comboBoxTipoOp.currentText())
                 reg['tipoOperacion'] = tipOp.split('-')[0]
                 reg['poliza'] = unicode(ui.cmpPoliza.text())
@@ -517,9 +528,8 @@ class MyForm(Ui_MainWindow):
                 row = len(self.registers)
                 dato = reg['fechaRegistro']
                 if dato:
-                    dato = dato.replace('/', '-')
-                    d, m, a = dato.split('-')
-                    newDate = datetime.date(int(a), int(m), int(d))
+                    y, m, d = dato.split('-')
+                    newDate = datetime.date(int(y), int(m), int(d))
                     self.registers[str(row+1)] = (newDate, reg)
                     self.show_register(str(row+1), reg)
                     self.refresh_header()
